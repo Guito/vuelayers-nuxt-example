@@ -1,0 +1,23 @@
+{
+    "name": "vuelayers-nuxt-example",
+    "version": "1.0.0",
+    "description": "",
+    "author": "Enrique Gonzalez",
+    "private": false,
+    "scripts": {
+        "dev": "nuxt",
+        "build": "nuxt build",
+        "start": "nuxt start",
+        "generate": "nuxt generate"
+    },
+    "dependencies": {
+        "@nuxtjs/axios": "^5.5.4",
+        "nuxt": "^2.8.1",
+        "vuelayers": "^0.11.4"
+    },
+    "devDependencies": {
+        "cross-env": "^5.2.0",
+        "node-sass": "^4.12.0",
+        "sass-loader": "^7.1.0"
+    }
+}
