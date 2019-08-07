@@ -1,20 +1,19 @@
 <template>
     <div>
-        <button @click="urlFunction = !urlFunction">Change features</button>
+        <button @click="changeMap">Change features</button>
         <no-ssr>
-            <vl-map :load-tiles-while-animating="true" :load-tiles-while-interacting="true"
-                    data-projection="EPSG:4326" style="height: 800px">
+            <vl-map v-if="!reloading" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" style="height: 800px">
                 <vl-view :zoom.sync="zoom" :center.sync="center" :rotation.sync="rotation"></vl-view>
 
                 <vl-layer-tile>
                     <vl-source-osm></vl-source-osm>
                 </vl-layer-tile>
 
-                <vl-layer-vector v-if="urlFunction">
+                <vl-layer-vector v-if="useUrlFunction">
                     <vl-source-vector :url="urlFunction" :strategy-factory="loadingStrategyFactory"></vl-source-vector>
                 </vl-layer-vector>
                 <vl-layer-vector v-else>
-                    <vl-source-vector url="https://openlayers.org/en/latest/examples/data/geojson/countries.geojson"></vl-source-vector>
+                    <vl-source-vector url="https://openlayers.org/en/latest/examples/data/geojson/countries.geojson" projection="EPSG:4326"></vl-source-vector>
                 </vl-layer-vector>
             </vl-map>
             <div style="padding: 20px">
@@ -28,8 +27,6 @@
 </template>
 
 <script>
-    // import {loadingBBox} from 'vuelayers/lib/ol-ext'
-
     export default {
         head() {
             return {
@@ -38,25 +35,31 @@
         },
         data() {
             return {
-                urlFunction: true,
+                useUrlFunction: true,
                 zoom: 3,
                 center: [1, 0],
                 rotation: 0,
                 geolocPosition: undefined,
+                reloading: false
             }
         },
         methods: {
-            urlFunction (extent, resolution, projection) {
+            changeMap() {
+                this.useUrlFunction = !this.useUrlFunction
+                this.reloading = true
+                this.$nextTick(() => {
+                    this.reloading = false
+                })
+            },
+            urlFunction(extent, resolution, projection) {
                 return 'https://ahocevar.com/geoserver/wfs?service=WFS&' +
                     'version=1.1.0&request=GetFeature&typename=osm:water_areas&' +
-                    'outputFormat=application/json&srsname=' + projection + '&' +
+                    'outputFormat=application/json&srsname=' + projection + '&maxFeatures=50' + '&' +
                     'bbox=' + extent.join(',') + ',' + projection
             },
-            loadingStrategyFactory () {
-                // VueLayers.olExt available only in UMD build
-                // in ES build it should be imported explicitly from 'vuelayers/lib/ol-ext'
-                return loadingBBox
-            },
+            loadingStrategyFactory() {
+                return this.$loadingBBox()
+            }
         }
     }
 </script>
